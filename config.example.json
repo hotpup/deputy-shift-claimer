@@ -1,0 +1,12 @@
+{
+  "target_shift_duration_hours": 6,
+  "target_shift_roles": [
+    "Bartender",
+    "Server",
+    "Manager",
+    "Host",
+    "Cashier"
+  ],
+  "gmail_label": "Deputy",
+  "notification_method": "console"
+}
