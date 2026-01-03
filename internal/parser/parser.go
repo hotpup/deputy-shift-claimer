@@ -179,7 +179,7 @@ func calculateDuration(startTime, endTime string) (float64, error) {
 
 // ShouldNotify determines if a shift should trigger a notification
 func ShouldNotify(shift *Shift, config FilterConfig) bool {
-	// Check if role matches any of the allowed roles (exact match only)
+	// Check if role matches any of the allowed roles (case-insensitive)
 	roleMatches := false
 	for _, allowedRole := range config.AllowedRoles {
 		if strings.EqualFold(shift.Role, allowedRole) {
