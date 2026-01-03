@@ -1,6 +1,6 @@
 # Deputy Shift Claimer
 
-A Python script that parses Gmail emails with the "Deputy" label and checks for shift length and shift roles. It notifies you when shifts meet your target duration or role criteria.
+A Go (Golang) application that parses Gmail emails with the "Deputy" label and checks for shift length and shift roles. It notifies you when shifts meet your target duration or role criteria.
 
 ## Features
 
@@ -9,10 +9,11 @@ A Python script that parses Gmail emails with the "Deputy" label and checks for 
 - 👔 **Role Matching**: Identifies shift roles and matches against your target roles
 - 🔔 **Smart Notifications**: Alerts you when shifts meet your criteria
 - ⚙️ **Configurable**: Easy configuration via JSON file
+- 🚀 **Fast & Efficient**: Built with Go for performance and reliability
 
 ## Prerequisites
 
-- Python 3.7 or higher
+- Go 1.21 or higher
 - A Google Cloud Project with Gmail API enabled
 - Gmail account with Deputy shift notification emails
 
@@ -21,7 +22,7 @@ A Python script that parses Gmail emails with the "Deputy" label and checks for 
 ### 1. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+go mod download
 ```
 
 ### 2. Set Up Gmail API Credentials
@@ -68,18 +69,30 @@ In Gmail, create a label called "Deputy" (or use a custom name in config) and ap
 
 ## Usage
 
-Run the script:
+### Build the Application
 
 ```bash
-python deputy_shift_claimer.py
+go build -o deputy-shift-claimer
 ```
 
-On first run, the script will:
-1. Open a browser window for Gmail authentication
+### Run the Application
+
+```bash
+./deputy-shift-claimer
+```
+
+Or run directly without building:
+
+```bash
+go run main.go
+```
+
+On first run, the application will:
+1. Open a browser window (or provide a URL) for Gmail authentication
 2. Ask you to authorize the application
 3. Save credentials to `token.json` for future use
 
-The script will then:
+The application will then:
 1. Fetch all emails with the "Deputy" label
 2. Parse each email for shift information
 3. Check if shifts meet your target criteria
@@ -127,19 +140,47 @@ Matching shifts found: 2
 ============================================================
 ```
 
+## Running Tests
+
+Run the test suite:
+
+```bash
+go test -v
+```
+
+Run tests with coverage:
+
+```bash
+go test -cover
+```
+
 ## How It Works
 
-The script uses several pattern matching techniques to extract shift information:
+The application uses several pattern matching techniques to extract shift information:
 
 1. **Role Detection**: Looks for keywords like "Shift:", "Position:", "Role:" followed by the role name
 2. **Time Range Parsing**: Detects time patterns like "9:00 AM - 5:00 PM" or "09:00-17:00"
 3. **Duration Calculation**: Either calculates from time ranges or extracts explicit durations like "8 hours"
 
+## Project Structure
+
+```
+.
+├── main.go              # Main application code
+├── main_test.go         # Unit tests
+├── go.mod               # Go module definition
+├── config.json          # Configuration file
+├── config.example.json  # Example configuration
+├── credentials.json     # OAuth credentials (not tracked)
+├── token.json          # OAuth token (not tracked)
+└── README.md           # This file
+```
+
 ## Troubleshooting
 
 ### "credentials.json not found"
 - Make sure you've downloaded OAuth credentials from Google Cloud Console
-- Place the file in the same directory as the script
+- Place the file in the same directory as the application
 
 ### "Label 'Deputy' not found in Gmail"
 - Check that you've created the label in Gmail
@@ -156,6 +197,15 @@ The script uses several pattern matching techniques to extract shift information
 - Check that Gmail API is enabled in Google Cloud Console
 - Verify your OAuth consent screen is configured
 
+### Build Issues
+- Ensure Go 1.21 or higher is installed: `go version`
+- Run `go mod tidy` to clean up dependencies
+- Check for any missing dependencies: `go mod download`
+
+## Python Version
+
+A Python implementation is also available in this repository. See the Python files for that version.
+
 ## Future Enhancements
 
 - Email notifications for matches
@@ -164,6 +214,7 @@ The script uses several pattern matching techniques to extract shift information
 - Automatic shift claiming
 - Support for multiple email providers
 - Calendar integration
+- Slack/Discord notifications
 
 ## License
 

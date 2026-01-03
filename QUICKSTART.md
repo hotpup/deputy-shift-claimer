@@ -2,9 +2,9 @@
 
 ## Setup Steps
 
-### 1. Install Python Dependencies
+### 1. Install Go Dependencies
 ```bash
-pip install -r requirements.txt
+go mod download
 ```
 
 ### 2. Configure Gmail API
@@ -35,13 +35,35 @@ In Gmail:
 2. Apply it to Deputy shift notification emails
 3. Optional: Set up a filter to auto-label incoming Deputy emails
 
-### 5. Run the Script
+### 5. Build and Run
 
+Build the application:
 ```bash
-python deputy_shift_claimer.py
+go build -o deputy-shift-claimer
+```
+
+Run it:
+```bash
+./deputy-shift-claimer
+```
+
+Or run directly without building:
+```bash
+go run main.go
 ```
 
 On first run, you'll be prompted to authenticate with Google.
+
+## Running Tests
+
+```bash
+go test -v
+```
+
+With coverage:
+```bash
+go test -cover
+```
 
 ## Troubleshooting
 
@@ -49,14 +71,29 @@ On first run, you'll be prompted to authenticate with Google.
 
 **Authentication error**: Delete `token.json` and re-authenticate.
 
-**Missing credentials**: Ensure `credentials.json` is in the same directory as the script.
+**Missing credentials**: Ensure `credentials.json` is in the same directory as the application.
+
+**Build errors**: Run `go mod tidy` to clean up dependencies.
 
 ## Customizing Shift Patterns
 
-The script looks for common patterns in Deputy emails:
+The application looks for common patterns in Deputy emails:
 - "Shift: [Role Name]"
 - "Position: [Role Name]"
 - Time ranges like "9:00 AM - 5:00 PM"
 - Explicit durations like "8 hours" or "8h"
 
-If your Deputy emails have different formats, you may need to adjust the regex patterns in `deputy_shift_claimer.py`.
+If your Deputy emails have different formats, you may need to adjust the regex patterns in `main.go`.
+
+## Alternative: Python Version
+
+A Python implementation is also available. See:
+- `deputy_shift_claimer.py` - Python script
+- `requirements.txt` - Python dependencies
+- `test_deputy_shift_claimer.py` - Python tests
+
+To use Python version:
+```bash
+pip install -r requirements.txt
+python deputy_shift_claimer.py
+```
