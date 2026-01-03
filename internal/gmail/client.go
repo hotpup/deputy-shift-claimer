@@ -43,7 +43,10 @@ func NewClient() (*Client, error) {
 		return nil, fmt.Errorf("unable to parse credentials: %w", err)
 	}
 
-	client := getClient(config)
+	client, err := getClient(config)
+	if err != nil {
+		return nil, err
+	}
 
 	srv, err := gmail.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
@@ -54,31 +57,36 @@ func NewClient() (*Client, error) {
 }
 
 // getClient retrieves a token, saves the token, then returns the generated client
-func getClient(config *oauth2.Config) *http.Client {
+func getClient(config *oauth2.Config) (*http.Client, error) {
 	tokFile := "token.json"
 	tok, err := tokenFromFile(tokFile)
 	if err != nil {
-		tok = getTokenFromWeb(config)
-		saveToken(tokFile, tok)
+		tok, err = getTokenFromWeb(config)
+		if err != nil {
+			return nil, err
+		}
+		if err := saveToken(tokFile, tok); err != nil {
+			return nil, err
+		}
 	}
-	return config.Client(context.Background(), tok)
+	return config.Client(context.Background(), tok), nil
 }
 
 // getTokenFromWeb requests a token from the web
-func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
+func getTokenFromWeb(config *oauth2.Config) (*oauth2.Token, error) {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf("Go to the following link in your browser then type the authorization code: \n%v\n", authURL)
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		panic(fmt.Errorf("unable to read authorization code: %w", err))
+		return nil, fmt.Errorf("unable to read authorization code: %w", err)
 	}
 
 	tok, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
-		panic(fmt.Errorf("unable to retrieve token from web: %w", err))
+		return nil, fmt.Errorf("unable to retrieve token from web: %w", err)
 	}
-	return tok
+	return tok, nil
 }
 
 // tokenFromFile retrieves a token from a local file
@@ -94,14 +102,17 @@ func tokenFromFile(file string) (*oauth2.Token, error) {
 }
 
 // saveToken saves a token to a file path
-func saveToken(path string, token *oauth2.Token) {
+func saveToken(path string, token *oauth2.Token) error {
 	fmt.Printf("Saving credential file to: %s\n", path)
 	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		panic(fmt.Errorf("unable to cache oauth token: %w", err))
+		return fmt.Errorf("unable to cache oauth token: %w", err)
 	}
 	defer f.Close()
-	json.NewEncoder(f).Encode(token)
+	if err := json.NewEncoder(f).Encode(token); err != nil {
+		return fmt.Errorf("unable to encode token: %w", err)
+	}
+	return nil
 }
 
 // FetchDeputyEmails fetches emails from the Deputy label
